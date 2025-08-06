@@ -1,4 +1,4 @@
 My project is written in VS code,and using MongoDB.<br>
-The purpose of the project is basically a website for selling cars.
-You can register / log in to the site.
-Any user can upload / delete cars for sale.
+The purpose of the project is basically a website for selling cars.<br>
+You can register / log in to the site.<br>
+Any user can upload / delete cars for sale.<br>
