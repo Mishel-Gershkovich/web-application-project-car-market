@@ -1,4 +1,4 @@
-// 1. התחברות משתמש
+// התחברות
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
   loginForm.addEventListener('submit', async (e) => {
@@ -15,13 +15,57 @@ if (loginForm) {
 
     const data = await res.json();
     alert(data.message);
+
+    if (data.message.includes('התחברת')) {
+      localStorage.setItem('username', username);
+      location.reload();
+    }
   });
 }
 
-// 2. הצגת רכבים בעמוד הראשי
+// הצגת רכבים + ניהול התחברות
 document.addEventListener('DOMContentLoaded', async () => {
+  const username = localStorage.getItem('username');
+
+  // אם מחובר - הצג שלום והתנתקות
+  if (username) {
+    const greeting = document.createElement('div');
+    greeting.innerHTML = `היי, ${username}<br>ברוך הבא!<br>`;
+    greeting.style.textAlign = 'left';
+    greeting.style.padding = '10px';
+    greeting.style.fontWeight = 'bold';
+    document.body.prepend(greeting);
+
+    const logoutBtn = document.createElement('button');
+    logoutBtn.textContent = 'התנתק';
+    logoutBtn.style.margin = '10px';
+    logoutBtn.style.float = 'left';
+    logoutBtn.style.backgroundColor = '#e74c3c';
+    logoutBtn.style.color = '#fff';
+    logoutBtn.style.border = 'none';
+    logoutBtn.style.padding = '8px 12px';
+    logoutBtn.style.borderRadius = '5px';
+    logoutBtn.style.cursor = 'pointer';
+    greeting.appendChild(logoutBtn);
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('username');
+      location.reload();
+    });
+
+    // הסתר טופס התחברות והרשמה
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) loginForm.style.display = 'none';
+
+    const regLink = document.querySelector('a[href="register.html"]');
+    const addCarLink = document.querySelector('a[href="add-car.html"]');
+    if (regLink) regLink.style.display = 'none';
+    if (addCarLink) addCarLink.style.display = 'none';
+  }
+
+  // הצגת רכבים
   const carsList = document.getElementById('cars-list');
-  if (!carsList) return; // אם אין רכבים להציג, לא לעשות כלום
+  if (!carsList) return;
 
   try {
     const res = await fetch('/api/cars');
