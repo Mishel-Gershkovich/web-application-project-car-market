@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <title>הוספת רכב למכירה</title>
+</head>
+<body>
+  <h1>הוספת רכב</h1>
+  <form id="carForm">
+    <input type="text" id="manufacturer" placeholder="יצרן" required /><br><br>
+    <input type="text" id="model" placeholder="דגם" required /><br><br>
+    <input type="number" id="year" placeholder="שנה" required /><br><br>
+    <textarea id="description" placeholder="תיאור" required></textarea><br><br>
+    <button type="submit">הוסף רכב</button>
+  </form>
+
+  <script>
+    document.getElementById('carForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const manufacturer = document.getElementById('manufacturer').value;
+      const model = document.getElementById('model').value;
+      const year = document.getElementById('year').value;
+      const description = document.getElementById('description').value;
+
+      const res = await fetch('/api/cars', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ manufacturer, model, year, description })
+      });
+
+      const data = await res.json();
+      alert(data.message);
+    });
+  </script>
+</body>
+</html>

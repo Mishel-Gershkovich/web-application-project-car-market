@@ -1,0 +1,73 @@
+/* צבע רקע כללי */
+body {
+  background-color: #f8f8f8;
+  font-family: 'Arial', sans-serif;
+  direction: rtl;
+  margin: 0;
+  padding: 0;
+}
+
+/* כותרת ראשית */
+h1 {
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* טופס התחברות ממורכז */
+form {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px auto;
+  flex-wrap: wrap;
+}
+
+/* קלטים וכפתור */
+input[type="text"],
+input[type="password"],
+button {
+  padding: 10px;
+  font-size: 16px;
+}
+
+/* כותרת של רשימת רכבים */
+h2 {
+  text-align: right;
+  padding-right: 20px;
+}
+
+/* קופסת רכב */
+.car-box {
+  border: 1px solid #ccc;
+  background-color: #ffffff;
+  padding: 15px;
+  margin: 15px 20px;
+  border-radius: 8px;
+  text-align: right;
+  max-width: 500px;
+}
+
+form, div {
+  text-align: center;
+  margin: 10px 0;
+}
+
+button {
+  padding: 8px 16px;
+  font-size: 16px;
+  margin: 5px;
+  cursor: pointer;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+/* תיאור */
+.car-box p {
+  margin: 5px 0;
+}
