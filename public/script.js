@@ -48,6 +48,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     logoutBtn.style.cursor = 'pointer';
     greeting.appendChild(logoutBtn);
 
+      const addCarBtn = document.createElement('a');
+  addCarBtn.href = 'add-car.html';
+  addCarBtn.textContent = 'העלה רכב למכירה';
+  addCarBtn.style.margin = '10px';
+  addCarBtn.style.float = 'left';
+  addCarBtn.style.backgroundColor = '#3498db';
+  addCarBtn.style.color = '#fff';
+  addCarBtn.style.border = 'none';
+  addCarBtn.style.padding = '8px 12px';
+  addCarBtn.style.borderRadius = '5px';
+  addCarBtn.style.cursor = 'pointer';
+  addCarBtn.style.textDecoration = 'none';
+
+  greeting.appendChild(addCarBtn);
+
     logoutBtn.addEventListener('click', () => {
       localStorage.removeItem('username');
       location.reload();
