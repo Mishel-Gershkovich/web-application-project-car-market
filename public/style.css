@@ -72,8 +72,105 @@ button:hover {
   margin: 5px 0;
 }
 
-.clearfix::after {
-  content: "";
-  display: table;
-  clear: both;
+
+/* ---------- אזור התחברות מעוצב ---------- */
+.auth-wrapper {
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  padding: 24px 28px;
+  text-align: right;
+}
+
+.auth-title {
+  margin: 0 0 6px 0;
+  font-size: 24px;
+}
+
+.auth-subtitle {
+  margin: 0 0 18px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.auth-form .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.auth-form label {
+  font-size: 14px;
+  color: #333;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"] {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 16px;
+  outline: none;
+  background: #fbfbfb;
+}
+
+.auth-form input:focus {
+  border-color: #3498db;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(52,152,219,0.12);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start; /* RTL: נשאר בצד ימין */
+  margin-top: 8px;
+}
+
+/* כפתורים כלליים */
+.btn {
+  display: inline-block;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: #fff;
+}
+
+.btn-primary:hover { opacity: 0.92; }
+
+.btn-ghost {
+  background: transparent;
+  color: #3498db;
+  border: 1px solid #3498db;
+}
+
+.btn-ghost:hover {
+  background: rgba(52,152,219,0.06);
+}
+
+/* ודא שהטופס הישן (הגלובלי) לא שובש שאר העמודים */
+form#loginForm {
+  display: block; /* ננטרל את ה-flex הכללי אם הוגדר קודם */
+  margin: 0;
+  gap: 0;
+  justify-content: initial;
 }
