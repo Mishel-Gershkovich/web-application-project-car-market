@@ -27,42 +27,55 @@ if (loginForm) {
 document.addEventListener('DOMContentLoaded', async () => {
   const username = localStorage.getItem('username');
 
-  // אם מחובר - הצג שלום והתנתקות
   if (username) {
+    
+    // יצירת קונטיינר לימין עליון
+    const container = document.createElement('div');
+
+    // ברכה
     const greeting = document.createElement('div');
     greeting.innerHTML = `היי, ${username}<br>ברוך הבא!<br>`;
     greeting.style.textAlign = 'left';
     greeting.style.padding = '10px';
     greeting.style.fontWeight = 'bold';
-    document.body.prepend(greeting);
 
+    // כפתור התנתקות
     const logoutBtn = document.createElement('button');
     logoutBtn.textContent = 'התנתק';
-    logoutBtn.style.margin = '10px';
-    logoutBtn.style.float = 'left';
-    logoutBtn.style.backgroundColor = '#e74c3c';
-    logoutBtn.style.color = '#fff';
-    logoutBtn.style.border = 'none';
-    logoutBtn.style.padding = '8px 12px';
-    logoutBtn.style.borderRadius = '5px';
-    logoutBtn.style.cursor = 'pointer';
-    greeting.appendChild(logoutBtn);
+    Object.assign(logoutBtn.style, {
+      margin: '10px',
+      float: 'left',
+      backgroundColor: '#e74c3c',
+      color: '#fff',
+      border: 'none',
+      padding: '8px 12px',
+      borderRadius: '5px',
+      cursor: 'pointer'
+    });
 
-      const addCarBtn = document.createElement('a');
-  addCarBtn.href = 'add-car.html';
-  addCarBtn.textContent = 'העלה רכב למכירה';
-  addCarBtn.style.margin = '10px';
-  addCarBtn.style.float = 'left';
-  addCarBtn.style.backgroundColor = '#3498db';
-  addCarBtn.style.color = '#fff';
-  addCarBtn.style.border = 'none';
-  addCarBtn.style.padding = '8px 12px';
-  addCarBtn.style.borderRadius = '5px';
-  addCarBtn.style.cursor = 'pointer';
-  addCarBtn.style.textDecoration = 'none';
+    // כפתור העלאת רכב
+    const addCarBtn = document.createElement('a');
+    addCarBtn.href = 'add-car.html';
+    addCarBtn.textContent = 'העלה רכב למכירה';
+    Object.assign(addCarBtn.style, {
+      margin: '10px',
+      float: 'left',
+      backgroundColor: '#3498db',
+      color: '#fff',
+      border: 'none',
+      padding: '8px 12px',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      textDecoration: 'none'
+    });
 
-  greeting.appendChild(addCarBtn);
+    // הוספה לדף
+    container.appendChild(greeting);
+    container.appendChild(logoutBtn);
+    container.appendChild(addCarBtn);
+    document.body.prepend(container);
 
+    // אירוע התנתקות
     logoutBtn.addEventListener('click', () => {
       localStorage.removeItem('username');
       location.reload();
@@ -71,11 +84,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     // הסתר טופס התחברות והרשמה
     const loginForm = document.getElementById('loginForm');
     if (loginForm) loginForm.style.display = 'none';
+    // הסתר/הסר את כל כרטיס ההתחברות
+    if (loginForm) {
+    const wrapper = loginForm.closest('.auth-wrapper'); // העטיפה של הכרטיס
+    if (wrapper) {
+    wrapper.remove();           // מסיר מה-DOM (מומלץ)
+    // או: wrapper.style.display = 'none';
+    } else {
+    loginForm.style.display = 'none';
+    }
+}
 
     const regLink = document.querySelector('a[href="register.html"]');
-    const addCarLink = document.querySelector('a[href="add-car.html"]');
+    //const addCarLink = document.querySelector('a[href="add-car.html"]');
     if (regLink) regLink.style.display = 'none';
-    if (addCarLink) addCarLink.style.display = 'none';
+    //if (addCarLink) addCarLink.style.display = 'none';
+    
   }
 
   // הצגת רכבים
@@ -91,9 +115,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       cars.forEach(car => {
         const carDiv = document.createElement('div');
-        carDiv.style.border = '1px solid #ccc';
-        carDiv.style.padding = '10px';
-        carDiv.style.margin = '10px';
+        Object.assign(carDiv.style, {
+          border: '1px solid #ccc',
+          padding: '10px',
+          margin: '10px'
+        });
 
         carDiv.innerHTML = `
           <h3>${car.manufacturer} ${car.model}</h3>
