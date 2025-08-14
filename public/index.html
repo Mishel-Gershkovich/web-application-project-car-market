@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <title>Car Market</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>ברוך הבא לאתר מכירת רכבים!</h1>
+
+<!-- עטיפה ממורכזת לטופס -->
+<section class="auth-wrapper">
+  <div class="auth-card">
+    <h2 class="auth-title">התחברות</h2>
+    <p class="auth-subtitle">היכנס כדי להעלות רכבים למכירה</p>
+
+    <form id="loginForm" class="auth-form">
+      <div class="form-row">
+        <label for="username">שם משתמש</label>
+        <input type="text" id="username" placeholder="הקלד שם משתמש" required />
+      </div>
+
+      <div class="form-row">
+        <label for="password">סיסמה</label>
+        <input type="password" id="password" placeholder="הקלד סיסמה" required />
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary">התחבר</button>
+        <a href="register.html" class="btn btn-ghost">להרשמה</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<h1>מבחר הרכבים שלנו:</h1>
+<div id="cars-list"></div>
+
+<!-- השאר רק פעם אחת -->
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+/* צבע רקע כללי */
+body {
+  background-color: #f8f8f8;
+  font-family: 'Arial', sans-serif;
+  direction: rtl;
+  margin: 0;
+  padding: 0;
+}
+
+/* כותרת ראשית */
+h1 {
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* טופס התחברות ממורכז */
+form {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px auto;
+  flex-wrap: wrap;
+}
+
+/* קלטים וכפתור */
+input[type="text"],
+input[type="password"],
+button {
+  padding: 10px;
+  font-size: 16px;
+}
+
+/* כותרת של רשימת רכבים */
+h2 {
+  text-align: right;
+  padding-right: 20px;
+}
+
+/* קופסת רכב */
+.car-box {
+  border: 1px solid #ccc;
+  background-color: #ffffff;
+  padding: 15px;
+  margin: 15px 20px;
+  border-radius: 8px;
+  text-align: right;
+  max-width: 500px;
+}
+
+form, div {
+  text-align: center;
+  margin: 10px 0;
+}
+
+button {
+  padding: 8px 16px;
+  font-size: 16px;
+  margin: 5px;
+  cursor: pointer;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+/* תיאור */
+.car-box p {
+  margin: 5px 0;
+}
+
+
+/* ---------- אזור התחברות מעוצב ---------- */
+.auth-wrapper {
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  padding: 24px 28px;
+  text-align: right;
+}
+
+.auth-title {
+  margin: 0 0 6px 0;
+  font-size: 24px;
+}
+
+.auth-subtitle {
+  margin: 0 0 18px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.auth-form .form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.auth-form label {
+  font-size: 14px;
+  color: #333;
+}
+
+.auth-form input[type="text"],
+.auth-form input[type="password"] {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 16px;
+  outline: none;
+  background: #fbfbfb;
+}
+
+.auth-form input:focus {
+  border-color: #3498db;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(52,152,219,0.12);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* כפתורים כלליים */
+.btn {
+  display: inline-block;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: #fff;
+}
+
+.btn-primary:hover { opacity: 0.92; }
+
+.btn-ghost {
+  background: transparent;
+  color: #3498db;
+  border: 1px solid #3498db;
+}
+
+.btn-ghost:hover {
+  background: rgba(52,152,219,0.06);
+}
+
+/* ודא שהטופס הישן (הגלובלי) לא שובש שאר העמודים */
+form#loginForm {
+  display: block; /* ננטרל את ה-flex הכללי אם הוגדר קודם */
+  margin: 0;
+  gap: 0;
+  justify-content: initial;
+}
+
+.auth-wrapper h2,
+.auth-wrapper p {
+  text-align: center;
+}
