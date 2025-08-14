@@ -1,44 +1,189 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>הוספת רכב למכירה</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>הוספת רכב · Car Market</title>
+  <style>
+    :root{
+      --brand:#2d7df6;
+      --brand-700:#1f66cf;
+      --bg-sky:#f3f8ff;   /* תכלת עדין מאוד */
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#5b6474;
+      --border:#e5e7eb;
+      --ring:rgba(45,125,246,.18);
+      --shadow:0 10px 30px rgba(16,24,40,.08);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:system-ui,"Segoe UI",Arial,sans-serif;
+      background:var(--bg-sky);
+      color:var(--text);
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+    .card{
+      width:100%;
+      max-width:560px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px;
+    }
+    .title{margin:0 0 6px;font-size:28px;font-weight:800;letter-spacing:-.02em}
+    .subtitle{margin:0 0 18px;color:var(--muted);font-size:14px}
+    form{margin-top:6px}
+    .row{display:grid;gap:6px;margin-bottom:14px}
+    label{font-size:14px;color:#2b2f36}
+    input, textarea, select{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px 14px;
+      font-size:16px;
+      background:#fbfdff;
+      outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    textarea{min-height:96px;resize:vertical}
+    input::placeholder, textarea::placeholder{color:#9aa4b2}
+    input:focus, textarea:focus, select:focus{
+      border-color:var(--brand);
+      background:#fff;
+      box-shadow:0 0 0 4px var(--ring);
+    }
+    .actions{
+      display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:6px;flex-wrap:wrap
+    }
+    .btn{
+      display:inline-block;border:0;border-radius:12px;padding:12px 16px;font-size:16px;
+      cursor:pointer;text-decoration:none;transition:transform .04s ease, opacity .15s ease;user-select:none
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:var(--brand);color:#fff;min-width:140px;text-align:center}
+    .btn-primary:hover{opacity:.92}
+    .btn-primary:focus{box-shadow:0 0 0 4px var(--ring);outline:none}
+    .btn-ghost{background:transparent;color:var(--brand-700);border:1px solid var(--brand-700);padding:10px 14px}
+    .btn-ghost:hover{background:rgba(45,125,246,.06)}
+    .error{
+      background:#fff2f2;border:1px solid #ffd4d4;color:#b42318;padding:10px 12px;border-radius:10px;
+      font-size:14px;margin-bottom:12px;display:none
+    }
+    .success{
+      background:#ecfdf3;border:1px solid #abefc6;color:#067647;padding:10px 12px;border-radius:10px;
+      font-size:14px;margin-bottom:12px;display:none
+    }
+    .note{font-size:12px;color:var(--muted);margin-top:-6px;margin-bottom:10px}
+  </style>
 </head>
 <body>
-  <h1>הוספת רכב</h1>
-  <form id="carForm">
-    <input type="text" id="manufacturer" placeholder="יצרן" required /><br><br>
-    <input type="text" id="model" placeholder="דגם" required /><br><br>
-    <input type="number" id="year" placeholder="שנה" required /><br><br>
-    <textarea id="description" placeholder="תיאור" required></textarea><br><br>
-    <button type="submit">הוסף רכב</button>
-  </form>
 
-<script>
-  document.getElementById('carForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+  <main class="card" aria-labelledby="form-title">
+    <h1 id="form-title" class="title">הוספת רכב למכירה</h1>
+    <p class="subtitle">מלא את פרטי הרכב ופרסם אותו במרקט</p>
 
-    const manufacturer = document.getElementById('manufacturer').value;
-    const model = document.getElementById('model').value;
-    const year = document.getElementById('year').value;
-    const description = document.getElementById('description').value;
+    <div id="errorBox" class="error" role="alert"></div>
+    <div id="successBox" class="success" role="status"></div>
+    <div id="loginNotice" class="error" style="display:none"></div>
 
-    const username = localStorage.getItem('username'); // ← חדש
+    <form id="carForm" novalidate>
+      <div class="row">
+        <label for="manufacturer">יצרן</label>
+        <input id="manufacturer" type="text" placeholder="לדוגמה: רנו" required />
+      </div>
+
+      <div class="row">
+        <label for="model">דגם</label>
+        <input id="model" type="text" placeholder="לדוגמה: קליאו" required />
+      </div>
+
+      <div class="row">
+        <label for="year">שנה</label>
+        <input id="year" type="number" inputmode="numeric" placeholder="לדוגמה: 2018" required />
+        <div class="note">שנה בין 1990 לשנה הנוכחית</div>
+      </div>
+
+      <div class="row">
+        <label for="description">תיאור</label>
+        <textarea id="description" placeholder="מצב מכני, ק״מ, בעלים קודמים, תוספות וכו׳" required></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary">הוסף רכב</button>
+        <a href="index.html" class="btn btn-ghost">חזרה לרשימת רכבים</a>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    // אלמנטים
+    const form = document.getElementById('carForm');
+    const errorBox = document.getElementById('errorBox');
+    const successBox = document.getElementById('successBox');
+    const loginNotice = document.getElementById('loginNotice');
+    const yearInput = document.getElementById('year');
+
+    const showError = (msg) => { errorBox.textContent = msg; errorBox.style.display = 'block'; };
+    const clearError = () => { errorBox.textContent = ''; errorBox.style.display = 'none'; };
+    const showSuccess = (msg) => { successBox.textContent = msg; successBox.style.display = 'block'; };
+    const clearSuccess = () => { successBox.textContent = ''; successBox.style.display = 'none'; };
+
+    // הגבלות שנה
+    const currentYear = new Date().getFullYear();
+    yearInput.min = 1990;
+    yearInput.max = currentYear;
+
+    // דרישת התחברות לפני העלאה
+    const username = localStorage.getItem('username');
     if (!username) {
-      alert('יש להתחבר לפני העלאת רכב.');
-      return;
+      loginNotice.style.display = 'block';
+      loginNotice.innerHTML = 'יש להתחבר לפני העלאת רכב. <a href="index.html" style="color:#1f66cf;text-decoration:underline">לעמוד התחברות</a>';
+      form.style.display = 'none';
     }
 
-    const res = await fetch('/api/cars', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ manufacturer, model, year, description, username }) // ← חדש
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError(); clearSuccess();
+
+      const manufacturer = document.getElementById('manufacturer').value.trim();
+      const model = document.getElementById('model').value.trim();
+      const year = Number(document.getElementById('year').value);
+      const description = document.getElementById('description').value.trim();
+
+      if (!manufacturer || !model || !year || !description) {
+        return showError('נא למלא את כל השדות.');
+      }
+      if (year < 1990 || year > currentYear) {
+        return showError(`השנה חייבת להיות בין 1990 ל-${currentYear}.`);
+      }
+
+      try {
+        const res = await fetch('/api/cars', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          // מוסיפים username כדי לשייך בעלות (הטופס המקורי לא שלח זאת):contentReference[oaicite:3]{index=3}
+          body: JSON.stringify({ manufacturer, model, year, description, username })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          return showError(data.message || 'שגיאה בשמירת הרכב.');
+        }
+
+        showSuccess(data.message || 'הרכב נוסף בהצלחה!');
+        form.reset();
+        yearInput.value = ''; // מנקה גם שדה מספרי
+      } catch (err) {
+        console.error(err);
+        showError('שגיאת רשת. נסה שוב.');
+      }
     });
-
-    const data = await res.json();
-    alert(data.message);
-  });
-</script>
-
+  </script>
 </body>
 </html>
