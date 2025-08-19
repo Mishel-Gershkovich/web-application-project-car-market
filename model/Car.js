@@ -8,6 +8,7 @@ const CarSchema = new mongoose.Schema({
   ownerUsername: { type: String, required: true },
   ownerName:     { type: String, required: true },
   ownerPhone:    { type: String, required: true },
+  imageUrl:      { type: String },
   createdAt: {
     type: Date,
     default: Date.now

@@ -132,6 +132,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     <p><strong>מעלה:</strong> ${ownerName} &middot; <strong>טלפון:</strong> ${ownerPhone}</p>
   `;
 
+  // ⬅️ חדש: הוספת תמונה אם קיימת
+  if (car.imageUrl) {
+    const img = document.createElement('img');
+    img.src = car.imageUrl; // דוגמה: "/uploads/12345.png"
+    img.alt = `${car.manufacturer || ''} ${car.model || ''}`.trim();
+    img.className = 'car-card-image';
+    carDiv.prepend(img); // מכניס לראש הכרטיס, מעל הכותרת
+  }
+
   // כפתורי עריכה/מחיקה רק לבעל הרכב (ע"פ ה-username ששמור בלוקאל סטורג')
   if (username && username === car.ownerUsername) {
     const actions = document.createElement('div');

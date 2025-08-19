@@ -114,6 +114,17 @@
         <textarea id="description" placeholder="מצב מכני, ק״מ, בעלים קודמים, תוספות וכו׳" required></textarea>
       </div>
 
+      <div class="field">
+        <label for="image">תמונה של הרכב (אופציונלי)</label>
+        <input type="file" id="image" name="image" accept="image/*">
+        <small id="imageHelp" class="muted">תמונות עד 5MB. פורמטים נתמכים: JPG/PNG/WEBP/GIF</small>
+      </div>
+
+      <!-- Preview -->
+      <div id="imagePreviewWrapper" style="display:none; margin-top:8px;">
+        <img id="imagePreview" alt="תצוגה מקדימה" style="max-width:100%; height:auto; border-radius:10px;">
+      </div>
+
       <div class="actions">
         <button type="submit" class="btn btn-primary">הוסף רכב</button>
         <a href="index.html" class="btn btn-ghost">חזרה לרשימת רכבים</a>
@@ -129,6 +140,10 @@
     const loginNotice = document.getElementById('loginNotice');
     const yearInput = document.getElementById('year');
 
+    const imageInput = document.getElementById('image');
+    const previewWrapper = document.getElementById('imagePreviewWrapper');
+    const previewImg = document.getElementById('imagePreview');
+
     const showError = (msg) => { errorBox.textContent = msg; errorBox.style.display = 'block'; };
     const clearError = () => { errorBox.textContent = ''; errorBox.style.display = 'none'; };
     const showSuccess = (msg) => { successBox.textContent = msg; successBox.style.display = 'block'; };
@@ -136,7 +151,7 @@
 
     // הגבלות שנה
     const currentYear = new Date().getFullYear();
-    yearInput.min = 1990;
+    yearInput.min = 1900;
     yearInput.max = currentYear;
 
     // דרישת התחברות לפני העלאה
@@ -146,6 +161,44 @@
       loginNotice.innerHTML = 'יש להתחבר לפני העלאת רכב. <a href="index.html" style="color:#1f66cf;text-decoration:underline">לעמוד התחברות</a>';
       form.style.display = 'none';
     }
+
+    // === תצוגה מקדימה לתמונה + בדיקות בסיסיות ===
+    if (imageInput) {
+      imageInput.addEventListener('change', () => {
+        const file = imageInput.files && imageInput.files[0];
+        if (!file) {
+          if (previewWrapper) previewWrapper.style.display = 'none';
+          if (previewImg) previewImg.src = '';
+          return;
+        }
+
+        const allowed = ['image/jpeg','image/png','image/webp','image/gif'];
+        if (!allowed.includes(file.type)) {
+          showError('סוג קובץ לא נתמך. תמכוּת: JPG/PNG/WEBP/GIF');
+          imageInput.value = '';
+          if (previewWrapper) previewWrapper.style.display = 'none';
+          if (previewImg) previewImg.src = '';
+          return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          showError('הקובץ גדול מדי (מעל 5MB).');
+          imageInput.value = '';
+          if (previewWrapper) previewWrapper.style.display = 'none';
+          if (previewImg) previewImg.src = '';
+          return;
+        }
+
+        clearError();
+        const reader = new FileReader();
+        reader.onload = e => {
+          if (previewImg) previewImg.src = e.target.result;
+          if (previewWrapper) previewWrapper.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -159,8 +212,8 @@
       if (!manufacturer || !model || !year || !description) {
         return showError('נא למלא את כל השדות.');
       }
-      if (year < 1990 || year > currentYear) {
-        return showError(`השנה חייבת להיות בין 1990 ל-${currentYear}.`);
+      if (year < 1900 || year > currentYear) {
+        return showError(`השנה חייבת להיות בין 1900 ל-${currentYear}.`);
       }
 
       try {

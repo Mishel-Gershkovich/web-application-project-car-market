@@ -1,3 +1,6 @@
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -6,6 +9,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
+
+const uploadDir = path.join(__dirname, 'public', 'uploads');
+fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname || ''));
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  if (allowed.includes(file.mimetype)) cb(null, true);
+  else cb(new Error('סוג קובץ לא נתמך'));
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // עד 5MB
+});
 
 // חיבור למסד
 mongoose.connect('mongodb://localhost:27017/car-market', {
@@ -56,7 +82,7 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-app.post('/api/cars', async (req, res) => {
+app.post('/api/cars', upload.single('image'), async (req, res) => {
   const { manufacturer, model, year, description, username } = req.body;
 
   try {
@@ -69,22 +95,23 @@ app.post('/api/cars', async (req, res) => {
       return res.status(404).json({ message: 'המשתמש המעלה לא נמצא.' });
     }
 
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+
     const newCar = new Car({
       manufacturer,
       model,
-      year,
+      year: year ? Number(year) : undefined,
       description,
       ownerUsername: owner.username,
-      ownerName: owner.username, // אפשר להחליף לשם מלא אם יהיה שדה כזה
-      ownerPhone: owner.phone
+      ownerName: owner.username, // החלף לשם מלא אם יתווסף שדה כזה
+      ownerPhone: owner.phone,
+      imageUrl // ← כתובת התמונה המקומית (אם הועלתה)
     });
 
     await newCar.save();
-    res.json({ message: 'הרכב נוסף בהצלחה!', carId: newCar._id });
+    res.json({ message: 'הרכב נוסף בהצלחה!', carId: newCar._id, imageUrl });
   } catch (error) {
     console.error(error);
-    // בזמן פיתוח אפשר להחזיר את הודעת השגיאה האמיתית כדי להבין מה קורה:
-    // return res.status(500).json({ message: error.message });
     res.status(500).json({ message: 'שגיאה בשמירת הרכב' });
   }
 });
@@ -143,6 +170,14 @@ app.delete('/api/cars/:id', async (req, res) => {
     console.error(error);
     res.status(500).json({ message: 'שגיאה במחיקת הרכב' });
   }
+});
+
+
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError || err.message === 'סוג קובץ לא נתמך') {
+    return res.status(400).json({ message: err.message });
+  }
+  next(err);
 });
 
 // האזנה לשרת
