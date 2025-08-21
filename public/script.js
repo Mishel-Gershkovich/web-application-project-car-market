@@ -196,7 +196,7 @@ cars.forEach(car => {
 
     actions.appendChild(editBtn);
     actions.appendChild(deleteBtn);
-    info.appendChild(actions);
+    card.appendChild(actions);
   }
 
   // סדר הילדים חשוב: ב-RTL הראשון יוצג מימין

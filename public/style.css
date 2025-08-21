@@ -279,3 +279,17 @@ form#loginForm {
   .car-card{ flex-direction: column; }
   .car-media{ width: 100%; aspect-ratio: 16 / 9; }
 }
+
+.car-card {
+  position: relative;
+  padding-left: 80px; /* משאיר מקום לטקסט בצד שמאל */
+}
+
+.car-actions {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column; /* אחד מתחת לשני */
+  gap: 4px; /* רווח אנכי ביניהם */
+}
