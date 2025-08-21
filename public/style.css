@@ -180,12 +180,99 @@ form#loginForm {
   text-align: center;
 }
 
+
+/* אזור הרשימה כולו – צר באמצע הדף */
+#cars-list{
+  max-width: 1100px;      /* שליטה על רוחב כללי */
+  margin: 0 auto 60px;
+  padding: 0 16px;
+  display: grid;
+  gap: 18px;
+}
+
+/* כרטיס רכב אופקי */
+.car-card{
+  display: flex;          /* ב-RTL: הילד הראשון יופיע בצד ימין */
+  flex-direction: row;
+  gap: 18px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 24px rgba(16,24,40,.06);
+}
+
+/* אזור התמונה (מימין) */
+.car-media{
+  flex: 0 0 320px;
+  width: 320px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* התמונה עצמה */
 .car-card-image{
   width: 100%;
-  height: 220px;
+  height: 100%;
   object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 12px;
   display: block;
-  background: #f2f2f2;
+}
+
+/* כשאין תמונה */
+.car-no-image{
+  color: #98a2b3;
+  font-size: 14px;
+}
+
+/* אזור הטקסט (משמאל) */
+.car-info{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.car-title{
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.car-meta, .car-desc, .car-owner{
+  margin: 0;
+  color: #475569;
+  font-size: 15px;
+}
+
+.car-meta{ display:flex; gap:14px; flex-wrap:wrap; }
+
+.car-actions{
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+.car-actions button{
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.car-actions button.delete{
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+}
+
+/* רספונסיבי – במובייל התמונה למעלה והטקסט מתחת */
+@media (max-width: 900px){
+  .car-card{ flex-direction: column; }
+  .car-media{ width: 100%; aspect-ratio: 16 / 9; }
 }

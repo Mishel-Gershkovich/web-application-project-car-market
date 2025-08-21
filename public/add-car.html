@@ -41,6 +41,7 @@
     .subtitle{margin:0 0 18px;color:var(--muted);font-size:14px}
     form{margin-top:6px}
     .row{display:grid;gap:6px;margin-bottom:14px}
+    .field{display:grid;gap:6px;margin-bottom:14px}
     label{font-size:14px;color:#2b2f36}
     input, textarea, select{
       border:1px solid var(--border);
@@ -80,6 +81,7 @@
       font-size:14px;margin-bottom:12px;display:none
     }
     .note{font-size:12px;color:var(--muted);margin-top:-6px;margin-bottom:10px}
+    .muted{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body>
@@ -106,7 +108,7 @@
       <div class="row">
         <label for="year">שנה</label>
         <input id="year" type="number" inputmode="numeric" placeholder="לדוגמה: 2018" required />
-        <div class="note">שנה בין 1990 לשנה הנוכחית</div>
+        <div class="note">שנה בין 1900 לשנה הנוכחית</div>
       </div>
 
       <div class="row">
@@ -133,7 +135,7 @@
   </main>
 
   <script>
-    // אלמנטים
+    // === אלמנטים ===
     const form = document.getElementById('carForm');
     const errorBox = document.getElementById('errorBox');
     const successBox = document.getElementById('successBox');
@@ -149,12 +151,12 @@
     const showSuccess = (msg) => { successBox.textContent = msg; successBox.style.display = 'block'; };
     const clearSuccess = () => { successBox.textContent = ''; successBox.style.display = 'none'; };
 
-    // הגבלות שנה
+    // === הגבלות שנה ===
     const currentYear = new Date().getFullYear();
     yearInput.min = 1900;
     yearInput.max = currentYear;
 
-    // דרישת התחברות לפני העלאה
+    // === דרישת התחברות לפני העלאה ===
     const username = localStorage.getItem('username');
     if (!username) {
       loginNotice.style.display = 'block';
@@ -199,7 +201,7 @@
       });
     }
 
-
+    // === שליחת הטופס כ-FormData (כולל תמונה) ===
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       clearError(); clearSuccess();
@@ -217,11 +219,19 @@
       }
 
       try {
+        const fd = new FormData();               // ⬅️ חשוב: לא שולחים JSON
+        fd.append('manufacturer', manufacturer);
+        fd.append('model', model);
+        fd.append('year', year);
+        fd.append('description', description);
+        fd.append('username', username);
+        if (imageInput && imageInput.files && imageInput.files[0]) {
+          fd.append('image', imageInput.files[0]);  // השם חייב להיות "image"
+        }
+
         const res = await fetch('/api/cars', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          // מוסיפים username כדי לשייך בעלות (הטופס המקורי לא שלח זאת):contentReference[oaicite:3]{index=3}
-          body: JSON.stringify({ manufacturer, model, year, description, username })
+          body: fd                              // ⬅️ בלי headers של Content-Type!
         });
         const data = await res.json();
 
@@ -230,8 +240,11 @@
         }
 
         showSuccess(data.message || 'הרכב נוסף בהצלחה!');
+        console.log('imageUrl from server:', data.imageUrl);
         form.reset();
-        yearInput.value = ''; // מנקה גם שדה מספרי
+        yearInput.value = '';
+        if (previewWrapper) previewWrapper.style.display = 'none';
+        if (previewImg) previewImg.src = '';
       } catch (err) {
         console.error(err);
         showError('שגיאת רשת. נסה שוב.');

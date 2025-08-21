@@ -113,38 +113,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (cars.length === 0) {
       carsList.innerHTML = '<p>אין רכבים להצגה כרגע.</p>';
     } else {
-      cars.forEach(car => {
-  const carDiv = document.createElement('div');
-  Object.assign(carDiv.style, {
-    border: '1px solid #ccc',
-    padding: '10px',
-    margin: '10px'
-  });
+cars.forEach(car => {
+  // === כרטיס בסיסי ===
+  const card = document.createElement('article');
+  card.className = 'car-card';
 
-  // נפילות חן לרכבים ישנים בלי בעלים (שנוצרו לפני העדכון)
+  // נתוני בעלים (נפילות חן לרכבים ישנים)
   const ownerName  = car.ownerName || car.ownerUsername || '—';
   const ownerPhone = car.ownerPhone || '—';
-  
-  carDiv.innerHTML = `
-    <h3>${car.manufacturer} ${car.model}</h3>
-    <p><strong>שנה:</strong> ${car.year}</p>
-    <p><strong>תיאור:</strong> ${car.description}</p>
-    <p><strong>מעלה:</strong> ${ownerName} &middot; <strong>טלפון:</strong> ${ownerPhone}</p>
-  `;
 
-  // ⬅️ חדש: הוספת תמונה אם קיימת
+  // === תמונה מימין ===
+  const media = document.createElement('div');
+  media.className = 'car-media';
+
   if (car.imageUrl) {
+    const src = car.imageUrl.startsWith('http')
+      ? car.imageUrl
+      : `${window.location.origin}${car.imageUrl}`;
     const img = document.createElement('img');
-    img.src = car.imageUrl; // דוגמה: "/uploads/12345.png"
-    img.alt = `${car.manufacturer || ''} ${car.model || ''}`.trim();
     img.className = 'car-card-image';
-    carDiv.prepend(img); // מכניס לראש הכרטיס, מעל הכותרת
+    img.loading = 'lazy';
+    img.alt = `${car.manufacturer || ''} ${car.model || ''}`.trim();
+    img.src = `${src}?v=${encodeURIComponent(car._id || Date.now())}`; // עוקף קאש
+    media.appendChild(img);
+  } else {
+    const noImg = document.createElement('div');
+    noImg.className = 'car-no-image';
+    noImg.textContent = 'אין תמונה';
+    media.appendChild(noImg);
   }
 
-  // כפתורי עריכה/מחיקה רק לבעל הרכב (ע"פ ה-username ששמור בלוקאל סטורג')
+  // === טקסט משמאל ===
+  const info = document.createElement('div');
+  info.className = 'car-info';
+  info.innerHTML = `
+    <h3 class="car-title">${car.manufacturer || ''} ${car.model || ''}</h3>
+    <p class="car-meta"><span><strong>שנה:</strong> ${car.year ?? '—'}</span></p>
+    <p class="car-desc"><strong>תיאור:</strong> ${car.description || '—'}</p>
+    <p class="car-owner"><strong>מעלה:</strong> ${ownerName} &middot; <strong>טלפון:</strong> ${ownerPhone}</p>
+  `;
+
+  // === פעולות לבעל הרכב בלבד ===
   if (username && username === car.ownerUsername) {
     const actions = document.createElement('div');
-    actions.style.marginTop = '8px';
+    actions.className = 'car-actions';
 
     const editBtn = document.createElement('button');
     editBtn.textContent = 'ערוך';
@@ -165,8 +177,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'מחיקה';
-    deleteBtn.style.backgroundColor = '#e74c3c';
+    deleteBtn.textContent = 'מחק';
+    deleteBtn.className = 'delete';
     deleteBtn.addEventListener('click', async () => {
       if (!confirm('למחוק את הרכב?')) return;
       const res = await fetch(`/api/cars/${car._id}`, {
@@ -181,10 +193,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     actions.appendChild(editBtn);
     actions.appendChild(deleteBtn);
-    carDiv.appendChild(actions);
+    info.appendChild(actions);
   }
-        carsList.appendChild(carDiv);
-      });
+
+  // סדר הילדים חשוב: ב-RTL הראשון יוצג מימין
+  card.appendChild(media); // מימין
+  card.appendChild(info);  // משמאל
+
+  // הוספה לרשימה
+  carsList.appendChild(card);
+});
     }
   } catch (error) {
     carsList.innerHTML = '<p>שגיאה בטעינת הרכבים.</p>';
