@@ -37,12 +37,36 @@ const upload = multer({
 mongoose.connect('mongodb://localhost:27017/car-market', {
   useNewUrlParser: true,
   useUnifiedTopology: true
-}).then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+}).then(async () => {
+  console.log('✅ Connected to MongoDB');
+  await ensureAdmin(); // ← כאן
+}).catch(err => console.error('❌ MongoDB connection error:', err));
 
 // מודלים
 const User = require('./model/User');
 const Car = require('./model/Car');
+
+// אדמין
+async function ensureAdmin() {
+  try {
+    const admin = await User.findOne({ username: 'admin' });
+    if (!admin) {
+      await User.create({
+        username: 'admin',
+        password: 'admin123456',
+        phone: '0509854267',
+        role: 'admin'
+      });
+      console.log('👑 Seeded admin user: admin / admin123456');
+    } else if (admin.role !== 'admin') {
+      admin.role = 'admin';
+      await admin.save();
+      console.log('👑 Updated existing "admin" to role=admin');
+    }
+  } catch (e) {
+    console.error('Failed to ensure admin:', e);
+  }
+}
 
 // ראוטים
 app.get('/api', (req, res) => {
@@ -134,7 +158,12 @@ app.put('/api/cars/:id', async (req, res) => {
     const car = await Car.findById(id);
     if (!car) return res.status(404).json({ message: 'הרכב לא נמצא.' });
 
-    if (!username || username !== car.ownerUsername) {
+    // 2) שליפת המשתמש הפועל ובדיקת אדמין
+    const actingUser = await User.findOne({ username });
+    const isAdmin = actingUser && actingUser.role === 'admin';
+
+    // 3) הרשאה: אדמין או בעל הרכב
+    if (!username || (!isAdmin && username !== car.ownerUsername)) {
       return res.status(403).json({ message: 'אין הרשאה לערוך רכב זה.' });
     }
 
@@ -157,10 +186,16 @@ app.delete('/api/cars/:id', async (req, res) => {
   const { username } = req.body;
 
   try {
+    // 1) שליפת הרכב
     const car = await Car.findById(id);
     if (!car) return res.status(404).json({ message: 'הרכב לא נמצא.' });
 
-    if (!username || username !== car.ownerUsername) {
+    // 2) שליפת המשתמש הפועל ובדיקת אדמין
+    const actingUser = await User.findOne({ username });
+    const isAdmin = actingUser && actingUser.role === 'admin';
+
+    // 3) הרשאה: אדמין או בעל הרכב
+    if (!username || (!isAdmin && username !== car.ownerUsername)) {
       return res.status(403).json({ message: 'אין הרשאה למחוק רכב זה.' });
     }
 

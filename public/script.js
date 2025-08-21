@@ -26,6 +26,7 @@ if (loginForm) {
 // הצגת רכבים + ניהול התחברות
 document.addEventListener('DOMContentLoaded', async () => {
   const username = localStorage.getItem('username');
+  const isAdmin = username === 'admin';
 
   if (username) {
     
@@ -35,16 +36,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ברכה
     const greeting = document.createElement('div');
     greeting.innerHTML = `היי, ${username}<br>ברוך הבא!<br>`;
-    greeting.style.textAlign = 'left';
+    greeting.style.textAlign = 'right';
     greeting.style.padding = '10px';
     greeting.style.fontWeight = 'bold';
 
-    // כפתור התנתקות
+    // כפתור העלאת רכב
+    const addCarBtn = document.createElement('a');
+    addCarBtn.href = 'add-car.html';
+    addCarBtn.textContent = 'העלה רכב למכירה';
+    Object.assign(addCarBtn.style, {
+      margin: '10px',
+      display: 'block',
+      backgroundColor: '#3498db',
+      color: '#fff',
+      border: 'none',
+      padding: '8px 12px',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      textDecoration: 'none',
+      width: 'fit-content'
+    });
+
+        // כפתור התנתקות
     const logoutBtn = document.createElement('button');
     logoutBtn.textContent = 'התנתק';
     Object.assign(logoutBtn.style, {
       margin: '10px',
-      float: 'left',
+      display: 'block',
       backgroundColor: '#e74c3c',
       color: '#fff',
       border: 'none',
@@ -53,26 +71,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       cursor: 'pointer'
     });
 
-    // כפתור העלאת רכב
-    const addCarBtn = document.createElement('a');
-    addCarBtn.href = 'add-car.html';
-    addCarBtn.textContent = 'העלה רכב למכירה';
-    Object.assign(addCarBtn.style, {
-      margin: '10px',
-      float: 'left',
-      backgroundColor: '#3498db',
-      color: '#fff',
-      border: 'none',
-      padding: '8px 12px',
-      borderRadius: '5px',
-      cursor: 'pointer',
-      textDecoration: 'none'
-    });
-
     // הוספה לדף
     container.appendChild(greeting);
-    container.appendChild(logoutBtn);
     container.appendChild(addCarBtn);
+    container.appendChild(logoutBtn);
+
     document.body.prepend(container);
 
     // אירוע התנתקות
@@ -154,7 +157,7 @@ cars.forEach(car => {
   `;
 
   // === פעולות לבעל הרכב בלבד ===
-  if (username && username === car.ownerUsername) {
+  if (username && (isAdmin || username === car.ownerUsername)) {
     const actions = document.createElement('div');
     actions.className = 'car-actions';
 

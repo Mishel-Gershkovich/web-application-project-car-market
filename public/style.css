@@ -204,8 +204,9 @@ form#loginForm {
 
 /* אזור התמונה (מימין) */
 .car-media{
-  flex: 0 0 320px;
-  width: 320px;
+  flex: 0 0 440px;
+  width: 440px;
+  height: 240px;
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: 12px;
@@ -235,11 +236,13 @@ form#loginForm {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding-top: 2px;
+  padding-top: 2px;  
+  align-items: center;     /* מרכז אופקי */
+  text-align: center; 
 }
 
 .car-title{
-  margin: 0 0 6px;
+  margin: 0 0 20px;
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -.02em;
@@ -258,7 +261,7 @@ form#loginForm {
   display: flex;
   gap: 8px;
 }
-.car-actions button{
+.car-actions button.edit{
   border: 1px solid #e5e7eb;
   background: #f8fafc;
   padding: 8px 12px;
