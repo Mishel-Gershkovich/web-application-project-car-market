@@ -1,3 +1,4 @@
+const escapeHTML = s => s ? s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : '';
 // התחברות
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
@@ -155,6 +156,99 @@ cars.forEach(car => {
     <p class="car-desc"><strong>תיאור:</strong> ${car.description || '—'}</p>
     <p class="car-owner"><strong>מעלה:</strong> ${ownerName} &middot; <strong>טלפון:</strong> ${ownerPhone}</p>
   `;
+
+    // === תגובות (מתחת לתיאור) ===
+  const commentsWrap = document.createElement('div');
+  commentsWrap.className = 'car-comments';
+
+  const commentsList = document.createElement('div');
+  commentsList.className = 'comments-list';
+  commentsWrap.appendChild(commentsList);
+
+  function renderComments() {
+    commentsList.innerHTML = '';
+    const list = Array.isArray(car.comments) ? car.comments : [];
+    if (list.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'comments-empty';
+      empty.textContent = 'אין תגובות עדיין.';
+      commentsList.appendChild(empty);
+      return;
+    }
+
+    list.forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'comment-row';
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      const when = c.createdAt ? new Date(c.createdAt).toLocaleString('he-IL') : '';
+      meta.textContent = `${c.username} · ${when}`;
+      row.appendChild(meta);
+
+      const textEl = document.createElement('div');
+      textEl.className = 'text';
+      textEl.innerHTML = escapeHTML(c.text);
+      row.appendChild(textEl);
+
+      if (username && (isAdmin || username === c.username)) {
+        const del = document.createElement('button');
+        del.className = 'comment-delete';
+        del.textContent = 'מחק';
+        del.addEventListener('click', async () => {
+          if (!confirm('למחוק את התגובה?')) return;
+          const resp = await fetch(`/api/cars/${car._id}/comments/${c._id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username })
+          });
+          const data = await resp.json();
+          if (!resp.ok) return alert(data.message || 'שגיאה במחיקת תגובה.');
+          // עדכון לוקלי וריענון
+          car.comments = (car.comments || []).filter(cc => cc._id !== c._id);
+          renderComments();
+        });
+        row.appendChild(del);
+      }
+
+      commentsList.appendChild(row);
+    });
+  }
+
+  // טופס הוספת תגובה (למשתמשים מחוברים בלבד)
+  if (username) {
+    const form = document.createElement('div');
+    form.className = 'comment-form';
+
+    const ta = document.createElement('textarea');
+    ta.placeholder = 'כתוב תגובה...';
+    ta.maxLength = 1000;
+
+    const submit = document.createElement('button');
+    submit.textContent = 'הגב';
+    submit.addEventListener('click', async () => {
+      const text = (ta.value || '').trim();
+      if (!text) return;
+      const resp = await fetch(`/api/cars/${car._id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, text })
+      });
+      const data = await resp.json();
+      if (!resp.ok) return alert(data.message || 'שגיאה בשליחת תגובה.');
+      car.comments = car.comments || [];
+      car.comments.push(data.comment);
+      ta.value = '';
+      renderComments();
+    });
+
+    form.appendChild(ta);
+    form.appendChild(submit);
+    commentsWrap.appendChild(form);
+  }
+
+  info.appendChild(commentsWrap);
+  renderComments();
 
   // === פעולות לבעל הרכב בלבד ===
   if (username && (isAdmin || username === car.ownerUsername)) {

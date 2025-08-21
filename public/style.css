@@ -293,3 +293,64 @@ form#loginForm {
   flex-direction: column; /* אחד מתחת לשני */
   gap: 4px; /* רווח אנכי ביניהם */
 }
+
+/* תגובות */
+.car-comments {
+  margin-top: 12px;
+  padding: 10px;
+  background: #f7f7f8;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.comments-empty { color: #6b7280; }
+
+.comment-row {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.comment-row .meta {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.comment-row .text { white-space: pre-wrap; }
+
+.comment-delete {
+  margin-top: 6px;
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* טופס הוספת תגובה */
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.comment-form textarea {
+  min-height: 60px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+}
+.comment-form button {
+  align-self: flex-start;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}

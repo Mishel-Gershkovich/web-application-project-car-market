@@ -207,6 +207,65 @@ app.delete('/api/cars/:id', async (req, res) => {
   }
 });
 
+// הוספת תגובה לרכב
+app.post('/api/cars/:id/comments', async (req, res) => {
+  const { id } = req.params;
+  const { username, text } = req.body;
+
+  if (!username || !text || !text.trim()) {
+    return res.status(400).json({ message: 'חסר טקסט תגובה או משתמש.' });
+  }
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) return res.status(403).json({ message: 'משתמש לא מוכר.' });
+
+    const car = await Car.findById(id);
+    if (!car) return res.status(404).json({ message: 'הרכב לא נמצא.' });
+
+    const comment = { username: user.username, userId: user._id, text: text.trim() };
+    car.comments.push(comment);
+    await car.save();
+
+    const saved = car.comments[car.comments.length - 1]; // כולל _id שנוצר
+    res.json({ message: 'התגובה נוספה.', comment: saved });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'שגיאה בהוספת תגובה.' });
+  }
+});
+
+// מחיקת תגובה (בעל התגובה או אדמין)
+app.delete('/api/cars/:id/comments/:commentId', async (req, res) => {
+  const { id, commentId } = req.params;
+  const { username } = req.body;
+
+  try {
+    const actingUser = await User.findOne({ username });
+    if (!actingUser) return res.status(403).json({ message: 'משתמש לא מוכר.' });
+
+    const isAdmin = actingUser.role === 'admin';
+    const car = await Car.findById(id);
+    if (!car) return res.status(404).json({ message: 'הרכב לא נמצא.' });
+
+    const comment = car.comments.id(commentId);
+    if (!comment) return res.status(404).json({ message: 'התגובה לא נמצאה.' });
+
+    if (!isAdmin && comment.username !== username) {
+      return res.status(403).json({ message: 'אין הרשאה למחוק תגובה זו.' });
+    }
+
+    // ⬅️ זה השינוי המרכזי: אין remove() במונגוס 7, משתמשים ב-deleteOne()
+    comment.deleteOne();
+    await car.save();
+
+    res.json({ message: 'התגובה נמחקה.' });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'שגיאה במחיקת תגובה.' });
+  }
+});
+
 
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError || err.message === 'סוג קובץ לא נתמך') {
