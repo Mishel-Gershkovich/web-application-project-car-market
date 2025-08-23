@@ -297,10 +297,11 @@ form#loginForm {
 /* תגובות */
 .car-comments {
   margin-top: 12px;
-  padding: 10px;
+  padding: 10px 50px;
   background: #f7f7f8;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
+    align-self: stretch;
 }
 
 .comments-empty { color: #6b7280; }
@@ -313,13 +314,18 @@ form#loginForm {
   margin-bottom: 8px;
 }
 
+.comments-list { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+
 .comment-row .meta {
   font-size: 12px;
   color: #6b7280;
   margin-bottom: 4px;
 }
 
-.comment-row .text { white-space: pre-wrap; }
+.comment-row .text { 
+  text-align: right !important;  /* גובר על text-align:center שמגיע מהורה */
+  direction: rtl;
+  white-space: pre-wrap; }
 
 .comment-delete {
   margin-top: 6px;
@@ -346,7 +352,8 @@ form#loginForm {
   font-family: inherit;
 }
 .comment-form button {
-  align-self: flex-start;
+
+  align-self: center;
   background: #3498db;
   color: #fff;
   border: none;

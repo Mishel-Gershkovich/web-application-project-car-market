@@ -106,6 +106,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
   }
 
+  
+
   // הצגת רכבים
   const carsList = document.getElementById('cars-list');
   if (!carsList) return;
