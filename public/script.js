@@ -41,6 +41,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     greeting.style.padding = '10px';
     greeting.style.fontWeight = 'bold';
 
+    // כפתור הודעות
+const inboxBtn = document.createElement('a');
+inboxBtn.href = 'messages.html';
+inboxBtn.textContent = 'תיבת הודעות';
+Object.assign(inboxBtn.style, {
+  margin: '10px',
+  display: 'block',
+  backgroundColor: '#ffea00ff',
+  color: '#000000ff',
+  border: 'none',
+  padding: '8px 27px',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  textDecoration: 'none',
+  width: 'fit-content'
+});
+
+
     // כפתור העלאת רכב
     const addCarBtn = document.createElement('a');
     addCarBtn.href = 'add-car.html';
@@ -74,6 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // הוספה לדף
     container.appendChild(greeting);
+    container.appendChild(inboxBtn);
     container.appendChild(addCarBtn);
     container.appendChild(logoutBtn);
 
@@ -106,7 +125,100 @@ document.addEventListener('DOMContentLoaded', async () => {
     
   }
 
-  
+// ==== דף הודעות (messages.html) ====
+const messagesList = document.getElementById('messages-list');
+if (messagesList) {
+  if (!username) {
+    messagesList.innerHTML = '<p>צריך להתחבר כדי לראות הודעות.</p>';
+  } else {
+    try {
+      const [msgsRes, carsRes] = await Promise.all([
+        fetch(`/api/messages?username=${encodeURIComponent(username)}`),
+        fetch('/api/cars')
+      ]);
+      const msgs = await msgsRes.json();
+      const cars = await carsRes.json();
+      const carById = Object.fromEntries(cars.map(c => [c._id, c]));
+
+      messagesList.innerHTML = '';
+      if (!Array.isArray(msgs) || msgs.length === 0) {
+        messagesList.innerHTML = '<p>אין הודעות עדיין.</p>';
+      } else {
+        msgs.forEach(m => {
+          const card = document.createElement('div');
+          card.className = 'msg-card';
+
+          const meta = document.createElement('div');
+          meta.className = 'msg-meta';
+          const when = new Date(m.createdAt).toLocaleString('he-IL');
+          const car = m.car ? carById[m.car] : null;
+          meta.textContent = `${m.fromUsername} · ${when}${car ? ` · ${car.manufacturer || ''} ${car.model || ''}` : ''}`;
+
+          const body = document.createElement('div');
+          body.className = 'msg-text';
+          body.textContent = m.text;
+
+          // פעולות: השב + מחק
+          const actions = document.createElement('div');
+          actions.className = 'msg-actions';
+
+          const reply = document.createElement('button');
+          reply.textContent = 'השב';
+          reply.addEventListener('click', async () => {
+            const t = prompt('כתוב תשובה...');
+            if (!t || !t.trim()) return;
+            const resp = await fetch('/api/messages', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                fromUsername: username,
+                toUsername: m.fromUsername,
+                carId: m.car,
+                text: t.trim()
+              })
+            });
+            const d = await resp.json();
+            alert(d.message || (resp.ok ? 'נשלח' : 'שגיאה בשליחה'));
+          });
+
+          const del = document.createElement('button');
+          del.textContent = 'מחק';
+          del.className = 'msg-delete';
+          del.addEventListener('click', async () => {
+            if (!confirm('למחוק את ההודעה?')) return;
+            const resp = await fetch(`/api/messages/${m._id}`, {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username })
+            });
+            const d = await resp.json();
+            if (!resp.ok) return alert(d.message || 'שגיאה במחיקה.');
+            card.remove();
+          });
+
+          actions.appendChild(reply);
+          actions.appendChild(del);
+
+          card.appendChild(meta);
+          card.appendChild(body);
+          card.appendChild(actions);
+          messagesList.appendChild(card);
+        });
+      }
+
+      // כפתור חזרה לדף הראשי
+      const back = document.createElement('a');
+      back.href = 'index.html';
+      back.className = 'back-home';
+      back.textContent = 'חזור לדף הראשי';
+      messagesList.parentElement.appendChild(back);
+
+    } catch (e) {
+      console.error(e);
+      messagesList.innerHTML = '<p>שגיאה בטעינת ההודעות.</p>';
+    }
+  }
+}
 
   // הצגת רכבים
   const carsList = document.getElementById('cars-list');
@@ -158,6 +270,49 @@ cars.forEach(car => {
     <p class="car-desc"><strong>תיאור:</strong> ${car.description || '—'}</p>
     <p class="car-owner"><strong>מעלה:</strong> ${ownerName} &middot; <strong>טלפון:</strong> ${ownerPhone}</p>
   `;
+
+
+  // כפתור שליחת הודעה למוכר (למשתמשים רשומים בלבד, לא על רכב של עצמם)
+if (username && username !== car.ownerUsername) {
+  const msgBtn = document.createElement('button');
+  msgBtn.textContent = 'שלח הודעה למוכר';
+  Object.assign(msgBtn.style, {
+    position: 'absolute',  // ← חדש: עוגן לפינה של הכרטיס
+    top: '12px',           // ← למעלה
+    left: '12px',          // ← לשמאל (אם תרצה בתוך אזור התוכן: נסה 92px)
+    zIndex: '2',
+
+    marginTop: '0',
+    
+    backgroundColor: '#16a34a',
+    color: '#fff',
+    border: 'none',
+    padding: '6px 12px',
+    borderRadius: '8px',
+    cursor: 'pointer'
+  });
+
+  msgBtn.addEventListener('click', async () => {
+    const text = prompt('כתוב הודעה למוכר:');
+    if (!text || !text.trim()) return;
+    const resp = await fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fromUsername: username,
+        toUsername: car.ownerUsername,
+        carId: car._id,
+        text: text.trim()
+      })
+    });
+    const data = await resp.json();
+    alert(data.message || (resp.ok ? 'הודעה נשלחה' : 'שגיאה בשליחה'));
+  });
+
+  card.appendChild(msgBtn);
+}
+
+
 
     // === תגובות (מתחת לתיאור) ===
   const commentsWrap = document.createElement('div');

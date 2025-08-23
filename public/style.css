@@ -301,7 +301,7 @@ form#loginForm {
   background: #f7f7f8;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-    align-self: stretch;
+  align-self: stretch;
 }
 
 .comments-empty { color: #6b7280; }
@@ -361,3 +361,70 @@ form#loginForm {
   border-radius: 8px;
   cursor: pointer;
 }
+
+
+
+/* דף הודעות */
+.messages-wrapper{
+  max-width: 900px;
+  margin: 16px auto 60px;
+  padding: 0 16px;
+}
+
+.msg-card{
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 10px 0;
+}
+
+.msg-meta{
+  color: #6b7280;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.msg-text{
+  font-size: 15px;
+  white-space: pre-wrap;
+  margin-bottom: 8px;
+}
+
+.msg-card button{
+  background: #3498db;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+
+.msg-actions{
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.msg-card button{
+  background: #3498db;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.msg-card button.msg-delete{
+  background: #e74c3c;
+}
+
+.back-home{
+  display: block;
+  text-align: center;
+  margin: 14px auto 40px;
+  font-weight: 600;
+  color: #0ea5e9;
+  text-decoration: none;
+}
+.back-home:hover{ text-decoration: underline; }

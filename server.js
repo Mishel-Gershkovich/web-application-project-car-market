@@ -45,6 +45,7 @@ mongoose.connect('mongodb://localhost:27017/car-market', {
 // מודלים
 const User = require('./model/User');
 const Car = require('./model/Car');
+const Message = require('./model/Message');
 
 // אדמין
 async function ensureAdmin() {
@@ -263,6 +264,77 @@ app.delete('/api/cars/:id/comments/:commentId', async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ message: 'שגיאה במחיקת תגובה.' });
+  }
+});
+
+// שליחת הודעה
+app.post('/api/messages', async (req, res) => {
+  try {
+    const { fromUsername, toUsername, text, carId } = req.body || {};
+    if (!fromUsername || !toUsername || !text || !text.trim()) {
+      return res.status(400).json({ message: 'חסרים נתונים לשליחת הודעה.' });
+    }
+    if (fromUsername === toUsername) {
+      return res.status(400).json({ message: 'אי אפשר לשלוח הודעה לעצמך.' });
+    }
+
+    const from = await User.findOne({ username: fromUsername });
+    const to   = await User.findOne({ username: toUsername });
+    if (!from || !to) return res.status(404).json({ message: 'משתמש לא נמצא.' });
+
+    let car = null;
+    if (carId) {
+      try { car = await Car.findById(carId); } catch(_) {}
+    }
+
+    const msg = await Message.create({
+      fromUsername, toUsername, text: text.trim(), car: car ? car._id : undefined
+    });
+
+    res.json({ message: 'הודעה נשלחה.', msg });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'שגיאה בשליחת הודעה.' });
+  }
+});
+
+// קבלת תיבת ההודעות של משתמש (הודעות שנשלחו אליו)
+app.get('/api/messages', async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username) return res.status(400).json({ message: 'חסר פרמטר username.' });
+
+    const list = await Message.find({ toUsername: username }).sort({ createdAt: -1 });
+    res.json(list);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'שגיאה בשליפת הודעות.' });
+  }
+});
+
+// מחיקת הודעה (הנמען או אדמין)
+app.delete('/api/messages/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username } = req.body || {};
+    if (!username) return res.status(400).json({ message: 'חסר username.' });
+
+    const actingUser = await User.findOne({ username });
+    if (!actingUser) return res.status(403).json({ message: 'משתמש לא מוכר.' });
+
+    const msg = await Message.findById(id);
+    if (!msg) return res.status(404).json({ message: 'הודעה לא נמצאה.' });
+
+    const isAdmin = actingUser.role === 'admin';
+    if (!isAdmin && msg.toUsername !== username) {
+      return res.status(403).json({ message: 'אין הרשאה למחוק הודעה זו.' });
+    }
+
+    await Message.deleteOne({ _id: id });
+    res.json({ message: 'ההודעה נמחקה.' });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'שגיאה במחיקת הודעה.' });
   }
 });
 
