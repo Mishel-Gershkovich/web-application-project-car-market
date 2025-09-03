@@ -90,8 +90,28 @@ Object.assign(inboxBtn.style, {
       cursor: 'pointer'
     });
 
+    
+
     // הוספה לדף
     container.appendChild(greeting);
+    if (isAdmin) {
+  const manageUsers = document.createElement('a');
+  manageUsers.href = 'admin-users.html';
+  manageUsers.textContent = 'ניהול משתמשים';
+  Object.assign(manageUsers.style, {
+    margin: '10px',
+    display: 'block',
+    backgroundColor: '#111827',
+    color: '#fff',
+    border: 'none',
+    padding: '8px 12px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    textDecoration: 'none',
+    width: 'fit-content'
+  });
+  container.appendChild(manageUsers);
+}
     container.appendChild(inboxBtn);
     container.appendChild(addCarBtn);
     container.appendChild(logoutBtn);
@@ -291,6 +311,11 @@ if (username && username !== car.ownerUsername) {
     borderRadius: '8px',
     cursor: 'pointer'
   });
+
+    if (isAdmin) {
+      msgBtn.style.left = 'auto';
+      msgBtn.style.right = '460px';
+  }
 
   msgBtn.addEventListener('click', async () => {
     const text = prompt('כתוב הודעה למוכר:');

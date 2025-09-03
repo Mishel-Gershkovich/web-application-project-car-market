@@ -346,6 +346,76 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// ===== Admin: Users Management =====
+app.get('/api/admin/users', async (req, res) => {
+  try {
+    const { username } = req.query;
+    const actingUser = await User.findOne({ username });
+    if (!actingUser || actingUser.role !== 'admin') {
+      return res.status(403).json({ message: 'אין הרשאה.' });
+    }
+
+    const users = await User.find({}, 'username phone role'); // בלי סיסמאות
+    res.json(users);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'שגיאה בשליפת משתמשים.' });
+  }
+});
+
+// מחיקת משתמש (אדמין בלבד) + מחיקה קשורה
+app.delete('/api/admin/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { username } = req.body || {};
+
+    const actingUser = await User.findOne({ username });
+    if (!actingUser || actingUser.role !== 'admin') {
+      return res.status(403).json({ message: 'אין הרשאה.' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'המשתמש לא נמצא.' });
+
+    // הגנות בסיסיות
+    if (user.role === 'admin') {
+      return res.status(400).json({ message: 'לא ניתן למחוק משתמש בעל תפקיד אדמין.' });
+    }
+
+    // מחיקת תוכן קשור
+    const usernameToRemove = user.username;
+
+    // 1) מחיקת רכבים שבבעלותו
+    const carsResult = await Car.deleteMany({ ownerUsername: usernameToRemove });
+
+    // 2) ניקוי תגובות של המשתמש מכל הרכבים
+    const commentsResult = await Car.updateMany(
+      {},
+      { $pull: { comments: { $or: [{ userId: user._id }, { username: usernameToRemove }] } } }
+    );
+
+    // 3) מחיקת הודעות שנשלחו או התקבלו ע"י המשתמש
+    const msgsResult = await Message.deleteMany({
+      $or: [{ fromUsername: usernameToRemove }, { toUsername: usernameToRemove }]
+    });
+
+    // 4) מחיקת המשתמש עצמו
+    await user.deleteOne();
+
+    res.json({
+      message: 'המשתמש נמחק בהצלחה.',
+      stats: {
+        carsDeleted: carsResult.deletedCount || 0,
+        messagesDeleted: msgsResult.deletedCount || 0,
+        commentsUpdatedDocs: commentsResult.modifiedCount || 0
+      }
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: 'שגיאה במחיקת משתמש.' });
+  }
+});
+
 // האזנה לשרת
 const PORT = 3000;
 app.listen(PORT, () => {

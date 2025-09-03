@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ניהול משתמשים · Admin</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-wrap{max-width:900px;margin:24px auto;padding:0 16px}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden}
+    th,td{padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:right}
+    th{background:#f8fafc;font-weight:700}
+    tr:last-child td{border-bottom:none}
+    .danger{background:#e74c3c;color:#fff;border:none;padding:6px 10px;border-radius:8px;cursor:pointer}
+    .ghost{border:1px solid #94a3b8;background:transparent;padding:6px 10px;border-radius:8px;color:#334155;cursor:pointer;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <div class="toolbar">
+      <h1>ניהול משתמשים</h1>
+      <a class="ghost" href="index.html">חזרה לדף הראשי</a>
+    </div>
+    <div id="notice"></div>
+    <table id="usersTable" aria-label="טבלת משתמשים">
+      <thead>
+        <tr>
+          <th>שם משתמש</th>
+          <th>טלפון</th>
+          <th>תפקיד</th>
+          <th style="width:120px">פעולות</th>
+        </tr>
+      </thead>
+      <tbody id="usersTbody">
+        <tr><td colspan="4">טוען...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const notice = document.getElementById('notice');
+    const tbody = document.getElementById('usersTbody');
+    const adminUsername = localStorage.getItem('username');
+
+    function show(msg, ok=false){
+      notice.textContent = msg;
+      notice.style.marginBottom = '10px';
+      notice.style.color = ok ? '#16a34a' : '#b91c1c';
+    }
+
+    async function loadUsers(){
+      // בדיקת התחברות והרשאה בסיסית בצד לקוח
+      if (!adminUsername){
+        tbody.innerHTML = '<tr><td colspan="4">יש להתחבר כ-admin.</td></tr>';
+        return;
+      }
+      try{
+        const res = await fetch('/api/admin/users?username='+encodeURIComponent(adminUsername));
+        const data = await res.json();
+        if (!res.ok){
+          tbody.innerHTML = `<tr><td colspan="4">${data.message || 'שגיאה'}</td></tr>`;
+          return;
+        }
+        if (!Array.isArray(data) || data.length===0){
+          tbody.innerHTML = '<tr><td colspan="4">אין משתמשים להצגה.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = '';
+        data.forEach(u=>{
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${u.username}</td>
+            <td>${u.phone || '—'}</td>
+            <td>${u.role || 'user'}</td>
+            <td>
+              <button class="danger" data-id="${u._id || ''}" ${u.role==='admin'?'disabled':''}>
+                מחק
+              </button>
+            </td>
+          `;
+          const btn = tr.querySelector('button.danger');
+          btn.addEventListener('click', async ()=>{
+            if (!confirm(`למחוק את "${u.username}"? פעולה זו תמחק גם רכבים/הודעות/תגובות שלו.`)) return;
+            const resp = await fetch('/api/admin/users/'+u._id, {
+              method: 'DELETE',
+              headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({ username: adminUsername })
+            });
+            const d = await resp.json();
+            if (!resp.ok){ show(d.message || 'שגיאה במחיקה'); return; }
+            show(d.message || 'נמחק', true);
+            tr.remove();
+            if (!tbody.children.length){
+              tbody.innerHTML = '<tr><td colspan="4">אין משתמשים להצגה.</td></tr>';
+            }
+          });
+          tbody.appendChild(tr);
+        });
+      }catch(e){
+        console.error(e);
+        tbody.innerHTML = '<tr><td colspan="4">שגיאה בטעינת משתמשים.</td></tr>';
+      }
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>
