@@ -54,11 +54,11 @@ async function ensureAdmin() {
     if (!admin) {
       await User.create({
         username: 'admin',
-        password: 'admin123456',
+        password: '*********',
         phone: '0509854267',
         role: 'admin'
       });
-      console.log('👑 Seeded admin user: admin / admin123456');
+      console.log('👑 Seeded admin user: admin');
     } else if (admin.role !== 'admin') {
       admin.role = 'admin';
       await admin.save();
