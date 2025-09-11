@@ -154,6 +154,7 @@
       <div class="row">
         <label for="password">סיסמה</label>
         <input id="password" name="password" type="password" placeholder="••••••••" minlength="6" required />
+        <div class="help">הסיסמא חייבת להיות בת 8 תווים כאשר יש לפחות תו אחד של מספר,אות גדולה וסימן</div>
       </div>
 
       <div class="row">
@@ -192,6 +193,12 @@
 
       if (!username || !phone || !password || !confirm) {
         return showError('נא למלא את כל השדות.');
+      }
+
+      const strongPass = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+
+      if (!strongPass.test(password)) {
+        return showError('הסיסמה חייבת להיות לפחות 8 תווים, עם אות גדולה, מספר וסימן מיוחד.');
       }
       if (password !== confirm) {
         return showError('הסיסמאות לא תואמות.');

@@ -67,7 +67,8 @@
           return;
         }
         tbody.innerHTML = '';
-        data.forEach(u=>{
+        const filtered = data.filter(u => u.role !== 'admin');
+        filtered.forEach(u=>{
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${u.username}</td>

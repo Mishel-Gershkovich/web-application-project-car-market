@@ -93,6 +93,13 @@ app.post('/api/register', async (req, res) => {
       return res.status(400).json({ message: 'חסר שם משתמש/סיסמה/טלפון.' });
     }
 
+    const strongPass = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!strongPass.test(password)) {
+      return res.status(400).json({
+        message: 'הסיסמה חייבת להיות לפחות 8 תווים, לכלול אות גדולה אחת, מספר אחד וסימן אחד.'
+      });
+    }
+
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.json({ message: 'שם המשתמש כבר קיים.' });
